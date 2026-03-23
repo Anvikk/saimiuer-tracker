@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saimiuer's Competition Tracker</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+.app { max-width: 600px; margin: 0 auto; padding: 16px; }
+.header { background: #fff; border-radius: 14px; border: 1px solid #e5e4de; padding: 1.25rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 18px; font-weight: 600; }
+.header .sub { font-size: 13px; color: #888; margin-top: 2px; }
+.sync { font-size: 12px; color: #3b6d11; background: #eaf3de; padding: 4px 10px; border-radius: 20px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+.stat { background: #fff; border: 1px solid #e5e4de; border-radius: 10px; padding: 0.9rem 1rem; }
+.stat-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 600; }
+.card { background: #fff; border: 1px solid #e5e4de; border-radius: 14px; padding: 1rem; margin-bottom: 10px; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-name { font-size: 14px; font-weight: 600; flex: 1; }
+.badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.badge-upcoming { background: #e6f1fb; color: #0c447c; }
+.badge-soon { background: #faeeda; color: #633806; }
+.badge-done { background: #eaf3de; color: #27500a; }
+.meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.meta-item { font-size: 12px; color: #888; }
+.meta-item span { color: #1a1a1a; font-weight: 500; }
+.bar { height: 4px; background: #eee; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; }
+textarea { width: 100%; border: 1px solid #e5e4de; border-radius: 8px; padding: 7px 10px; font-size: 13px; color: #1a1a1a; background: #fafaf8; margin-top: 8px; resize: none; font-family: inherit; }
+textarea:focus { outline: none; border-color: #888; }
+.btn-del { font-size: 12px; color: #bbb; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+.btn-del:hover { color: #e24b4a; background: #fcebeb; }
+.add-section { background: #fff; border: 1px solid #e5e4de; border-radius: 14px; padding: 1.25rem; margin-top: 4px; }
+.toggle-btn { font-size: 14px; color: #185fa5; background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 14px; font-weight: 500; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-label { font-size: 12px; color: #888; }
+.form-input { border: 1px solid #e5e4de; border-radius: 8px; padding: 8px 10px; font-size: 13px; background: #fafaf8; color: #1a1a1a; font-family: inherit; }
+.form-input:focus { outline: none; border-color: #888; }
+.btn-save { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e4de; background: #1a1a1a; color: #fff; font-size: 14px; cursor: pointer; margin-top: 4px; font-weight: 500; }
+.btn-save:hover { background: #333; }
+.saved-msg { font-size: 11px; color: #3b6d11; margin-top: 4px; display: none; }
+.section-title { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.empty { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
+@media (max-width: 400px) {
+  .stats { grid-template-columns: repeat(3, 1fr); }
+  .stat-value { font-size: 18px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>Saimiuer's Tracker</h1>
+      <div class="sub">Family competition dashboard</div>
+    </div>
+    <div class="sync" id="sync-status">Loading...</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Competitions</div><div class="stat-value" id="total-count">0</div></div>
+    <div class="stat"><div class="stat-label">Total (SGD)</div><div class="stat-value" id="total-cost">0</div></div>
+    <div class="stat"><div class="stat-label">Days to next</div><div class="stat-value" id="days-next">—</div></div>
+  </div>
+
+  <div class="section-title" style="padding: 0 4px 6px">Registered competitions</div>
+  <div id="contests-list"></div>
+  <div id="empty-state" class="empty" style="display:none">No competitions yet. Add one below!</div>
+
+  <div class="add-section">
+    <button class="toggle-btn" onclick="toggleForm()">+ Add competition</button>
+    <div id="add-form" style="display:none">
+      <div class="form-row" style="grid-template-columns:1fr">
+        <div class="form-group">
+          <div class="form-label">Competition name</div>
+          <input class="form-input" id="f-name" placeholder="e.g. World Math Olympiad 2026" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Contest date</div>
+          <input class="form-input" id="f-date" type="date" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">Price (SGD)</div>
+          <input class="form-input" id="f-price" type="number" placeholder="88" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Subject</div>
+          <input class="form-input" id="f-subject" placeholder="Math / English" />
+        </div>
+        <div class="form-group">
+          <div class="form-label">Venue / Mode</div>
+          <input class="form-input" id="f-venue" placeholder="Online / School" />
+        </div>
+      </div>
+      <button class="btn-save" onclick="addContest()">Save competition</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'saimiuer_tracker_v1';
+
+function getDefaults() {
+  return [
+    { id: 1, name: 'World English Olympiad 2026', date: '2026-03-30', price: 88, subject: 'English', venue: 'Online', notes: '' },
+    { id: 2, name: 'World Math Olympiad 2026', date: '2026-03-30', price: 88, subject: 'Math', venue: 'Online', notes: '' },
+  ];
+}
+
+function load() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : getDefaults();
+  } catch(e) { return getDefaults(); }
+}
+
+function save(contests) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(contests));
+    setStatus('Saved');
+    setTimeout(() => setStatus('Up to date'), 1500);
+  } catch(e) {}
+}
+
+function setStatus(msg) {
+  document.getElementById('sync-status').textContent = msg;
+}
+
+function getDays(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr); d.setHours(0,0,0,0);
+  const n = new Date(); n.setHours(0,0,0,0);
+  return Math.round((d - n) / 86400000);
+}
+
+function getStatus(days) {
+  if (days === null) return { label: '—', cls: 'badge-upcoming' };
+  if (days < 0) return { label: 'Completed', cls: 'badge-done' };
+  if (days <= 14) return { label: days + 'd left', cls: 'badge-soon' };
+  return { label: days + ' days', cls: 'badge-upcoming' };
+}
+
+function getColor(subject) {
+  const s = (subject || '').toLowerCase();
+  if (s.includes('math')) return '#378ADD';
+  if (s.includes('english')) return '#1D9E75';
+  if (s.includes('science')) return '#EF9F27';
+  return '#7F77DD';
+}
+
+function render() {
+  const contests = load();
+  const list = document.getElementById('contests-list');
+  const empty = document.getElementById('empty-state');
+
+  empty.style.display = contests.length ? 'none' : 'block';
+
+  list.innerHTML = contests.map(c => {
+    const days = getDays(c.date);
+    const st = getStatus(days);
+    const pct = days !== null ? Math.max(0, Math.min(100, Math.round(100 - (days / 180 * 100)))) : 0;
+    const color = getColor(c.subject);
+    const dateStr = c.date ? new Date(c.date).toLocaleDateString('en-SG', { day:'numeric', month:'short', year:'numeric' }) : '—';
+    return `<div class="card">
+      <div class="card-top">
+        <div class="card-name">${c.name}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="badge ${st.cls}">${st.label}</span>
+          <button class="btn-del" onclick="deleteContest(${c.id})">✕</button>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-item">Date: <span>${dateStr}</span></div>
+        <div class="meta-item">Price: <span>${c.price} SGD</span></div>
+        ${c.subject ? `<div class="meta-item">Subject: <span>${c.subject}</span></div>` : ''}
+        ${c.venue ? `<div class="meta-item">Venue: <span>${c.venue}</span></div>` : ''}
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <textarea rows="2" placeholder="Notes (prep tips, reminders...)" onchange="updateNotes(${c.id}, this.value)">${c.notes || ''}</textarea>
+      <div class="saved-msg" id="saved-${c.id}">✓ Saved</div>
+    </div>`;
+  }).join('');
+
+  const total = contests.reduce((s, c) => s + (Number(c.price) || 0), 0);
+  document.getElementById('total-count').textContent = contests.length;
+  document.getElementById('total-cost').textContent = total;
+  const upcoming = contests.filter(c => getDays(c.date) !== null && getDays(c.date) >= 0).sort((a,b) => getDays(a.date) - getDays(b.date));
+  document.getElementById('days-next').textContent = upcoming.length ? getDays(upcoming[0].date) : '—';
+  setStatus('Up to date');
+}
+
+function toggleForm() {
+  const f = document.getElementById('add-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function addContest() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Please enter a competition name.'); return; }
+  const contests = load();
+  contests.push({
+    id: Date.now(),
+    name,
+    date: document.getElementById('f-date').value,
+    price: Number(document.getElementById('f-price').value) || 0,
+    subject: document.getElementById('f-subject').value.trim(),
+    venue: document.getElementById('f-venue').value.trim(),
+    notes: '',
+  });
+  ['f-name','f-date','f-price','f-subject','f-venue'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('add-form').style.display = 'none';
+  save(contests); render();
+}
+
+function deleteContest(id) {
+  if (!confirm('Remove this competition?')) return;
+  const contests = load().filter(c => c.id !== id);
+  save(contests); render();
+}
+
+function updateNotes(id, val) {
+  const contests = load();
+  const c = contests.find(x => x.id === id);
+  if (c) { c.notes = val; save(contests); }
+  const el = document.getElementById('saved-' + id);
+  if (el) { el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2000); }
+}
+
+render();
+</script>
+</body>
+</html>
