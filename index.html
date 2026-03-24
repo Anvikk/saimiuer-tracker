@@ -3,238 +3,702 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Saimiuer's Competition Tracker</title>
+<title>Saimiuer Competition Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
-.app { max-width: 600px; margin: 0 auto; padding: 16px; }
-.header { background: #fff; border-radius: 14px; border: 1px solid #e5e4de; padding: 1.25rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-.header h1 { font-size: 18px; font-weight: 600; }
-.header .sub { font-size: 13px; color: #888; margin-top: 2px; }
-.sync { font-size: 12px; color: #3b6d11; background: #eaf3de; padding: 4px 10px; border-radius: 20px; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-.stat { background: #fff; border: 1px solid #e5e4de; border-radius: 10px; padding: 0.9rem 1rem; }
-.stat-label { font-size: 12px; color: #888; margin-bottom: 4px; }
-.stat-value { font-size: 22px; font-weight: 600; }
-.card { background: #fff; border: 1px solid #e5e4de; border-radius: 14px; padding: 1rem; margin-bottom: 10px; }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.card-name { font-size: 14px; font-weight: 600; flex: 1; }
-.badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
-.badge-upcoming { background: #e6f1fb; color: #0c447c; }
-.badge-soon { background: #faeeda; color: #633806; }
-.badge-done { background: #eaf3de; color: #27500a; }
-.meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-.meta-item { font-size: 12px; color: #888; }
-.meta-item span { color: #1a1a1a; font-weight: 500; }
-.bar { height: 4px; background: #eee; border-radius: 2px; margin-top: 10px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 2px; }
-textarea { width: 100%; border: 1px solid #e5e4de; border-radius: 8px; padding: 7px 10px; font-size: 13px; color: #1a1a1a; background: #fafaf8; margin-top: 8px; resize: none; font-family: inherit; }
-textarea:focus { outline: none; border-color: #888; }
-.btn-del { font-size: 12px; color: #bbb; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
-.btn-del:hover { color: #e24b4a; background: #fcebeb; }
-.add-section { background: #fff; border: 1px solid #e5e4de; border-radius: 14px; padding: 1.25rem; margin-top: 4px; }
-.toggle-btn { font-size: 14px; color: #185fa5; background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 14px; font-weight: 500; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.form-group { display: flex; flex-direction: column; gap: 4px; }
-.form-label { font-size: 12px; color: #888; }
-.form-input { border: 1px solid #e5e4de; border-radius: 8px; padding: 8px 10px; font-size: 13px; background: #fafaf8; color: #1a1a1a; font-family: inherit; }
-.form-input:focus { outline: none; border-color: #888; }
-.btn-save { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e4de; background: #1a1a1a; color: #fff; font-size: 14px; cursor: pointer; margin-top: 4px; font-weight: 500; }
-.btn-save:hover { background: #333; }
-.saved-msg { font-size: 11px; color: #3b6d11; margin-top: 4px; display: none; }
-.section-title { font-size: 12px; font-weight: 600; color: #888; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
-.empty { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
-@media (max-width: 400px) {
-  .stats { grid-template-columns: repeat(3, 1fr); }
-  .stat-value { font-size: 18px; }
-  .form-row { grid-template-columns: 1fr; }
-}
+  :root {
+    --bg: #0a0f1e;
+    --card: #111827;
+    --card2: #1a2235;
+    --accent: #f59e0b;
+    --accent2: #3b82f6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --border: #1e2d45;
+    --green: #10b981;
+    --red: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 20%, rgba(245,158,11,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 32px 0 28px;
+  }
+
+  .logo {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--accent), #f97316);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+    box-shadow: 0 8px 24px rgba(245,158,11,0.3);
+  }
+
+  header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--text), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* Stats Row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Competition Cards */
+  .competitions { margin-bottom: 28px; }
+
+  .comp-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .comp-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
+  .comp-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .comp-card.upcoming::before { background: var(--accent); }
+  .comp-card.past::before { background: var(--muted); }
+  .comp-card.today::before { background: var(--green); }
+
+  .comp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .comp-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .comp-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-upcoming { background: rgba(245,158,11,0.15); color: var(--accent); }
+  .badge-past { background: rgba(100,116,139,0.15); color: var(--muted); }
+  .badge-today { background: rgba(16,185,129,0.15); color: var(--green); }
+
+  .comp-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .comp-date-icon { font-size: 14px; }
+
+  .comp-countdown {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 10px;
+  }
+
+  .comp-countdown.past { color: var(--muted); }
+  .comp-countdown.today { color: var(--green); }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 0.5s ease;
+  }
+
+  /* Notes */
+  .comp-notes {
+    background: var(--card2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  .notes-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .notes-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .notes-empty { color: var(--muted); font-style: italic; }
+
+  .notes-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--text);
+    font-family: inherit;
+    resize: none;
+    line-height: 1.5;
+    min-height: 60px;
+  }
+
+  .notes-input::placeholder { color: var(--muted); }
+
+  .comp-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-small {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .btn-edit { background: var(--card2); color: var(--text); }
+  .btn-edit:hover { background: var(--border); }
+  .btn-save { background: var(--accent); color: #000; }
+  .btn-save:hover { background: #d97706; }
+  .btn-delete { background: rgba(239,68,68,0.1); color: var(--red); }
+  .btn-delete:hover { background: rgba(239,68,68,0.2); }
+
+  /* Add Form */
+  .add-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .add-form h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .form-input, .form-textarea {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus, .form-textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .form-input::placeholder, .form-textarea::placeholder {
+    color: var(--muted);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .form-textarea { resize: vertical; min-height: 70px; }
+
+  .btn-add {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent), #f97316);
+    color: #000;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+
+  .btn-add:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-add:active { transform: translateY(0); }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* Status dot */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background: var(--green);
+    animation: pulse 2s infinite;
+    margin-right: 6px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .sync-status {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .stat-num { font-size: 18px; }
+  }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <div>
-      <h1>Saimiuer's Tracker</h1>
-      <div class="sub">Family competition dashboard</div>
-    </div>
-    <div class="sync" id="sync-status">Loading...</div>
+<div class="container">
+  <header>
+    <div class="logo">🏆</div>
+    <h1>Saimiuer's Competitions</h1>
+    <p>Family tracker — synced across all devices</p>
+  </header>
+
+  <div class="sync-status">
+    <span class="status-dot"></span>Live sync enabled
   </div>
 
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Competitions</div><div class="stat-value" id="total-count">0</div></div>
-    <div class="stat"><div class="stat-label">Total (SGD)</div><div class="stat-value" id="total-cost">0</div></div>
-    <div class="stat"><div class="stat-label">Days to next</div><div class="stat-value" id="days-next">—</div></div>
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="stat-upcoming">—</div><div class="stat-label">Upcoming</div></div>
+    <div class="stat"><div class="stat-num" id="stat-next">—</div><div class="stat-label">Days to Next</div></div>
   </div>
 
-  <div class="section-title" style="padding: 0 4px 6px">Registered competitions</div>
-  <div id="contests-list"></div>
-  <div id="empty-state" class="empty" style="display:none">No competitions yet. Add one below!</div>
+  <div class="section-title">Competitions</div>
 
-  <div class="add-section">
-    <button class="toggle-btn" onclick="toggleForm()">+ Add competition</button>
-    <div id="add-form" style="display:none">
-      <div class="form-row" style="grid-template-columns:1fr">
-        <div class="form-group">
-          <div class="form-label">Competition name</div>
-          <input class="form-input" id="f-name" placeholder="e.g. World Math Olympiad 2026" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">Contest date</div>
-          <input class="form-input" id="f-date" type="date" />
-        </div>
-        <div class="form-group">
-          <div class="form-label">Price (SGD)</div>
-          <input class="form-input" id="f-price" type="number" placeholder="88" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">Subject</div>
-          <input class="form-input" id="f-subject" placeholder="Math / English" />
-        </div>
-        <div class="form-group">
-          <div class="form-label">Venue / Mode</div>
-          <input class="form-input" id="f-venue" placeholder="Online / School" />
-        </div>
-      </div>
-      <button class="btn-save" onclick="addContest()">Save competition</button>
+  <div class="competitions" id="competitions-list">
+    <div class="loading"><div class="spinner"></div>Loading competitions...</div>
+  </div>
+
+  <div class="section-title">Add New Competition</div>
+
+  <div class="add-form">
+    <div class="form-group">
+      <label class="form-label">Competition Name</label>
+      <input class="form-input" id="input-name" type="text" placeholder="e.g. National Swimming Championship">
     </div>
+    <div class="form-group">
+      <label class="form-label">Location / City</label>
+      <input class="form-input" id="input-location" type="text" placeholder="e.g. Beijing">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date Range</label>
+      <div class="form-row">
+        <div>
+          <label class="form-label" style="font-size:11px">Start Date</label>
+          <input class="form-input" id="input-start" type="date">
+        </div>
+        <div>
+          <label class="form-label" style="font-size:11px">End Date</label>
+          <input class="form-input" id="input-end" type="date">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes / Prep Tips</label>
+      <textarea class="form-textarea" id="input-notes" placeholder="Any notes, reminders, or prep tips..."></textarea>
+    </div>
+    <button class="btn-add" onclick="addCompetition()">＋ Add Competition</button>
   </div>
 </div>
 
-<script>
-const STORAGE_KEY = 'saimiuer_tracker_v1';
+<div class="toast" id="toast"></div>
 
-function getDefaults() {
-  return [
-    { id: 1, name: 'World English Olympiad 2026', date: '2026-03-30', price: 88, subject: 'English', venue: 'Online', notes: '' },
-    { id: 2, name: 'World Math Olympiad 2026', date: '2026-03-30', price: 88, subject: 'Math', venue: 'Online', notes: '' },
-  ];
-}
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-function load() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : getDefaults();
-  } catch(e) { return getDefaults(); }
-}
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzHXNUqOfV6kBYEmvuiPaq9j4b9fxGRhc",
+    authDomain: "saimiuer-tracker.firebaseapp.com",
+    projectId: "saimiuer-tracker",
+    storageBucket: "saimiuer-tracker.firebasestorage.app",
+    messagingSenderId: "179606328216",
+    appId: "1:179606328216:web:eda47ebe5f19cb321291ed"
+  };
 
-function save(contests) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(contests));
-    setStatus('Saved');
-    setTimeout(() => setStatus('Up to date'), 1500);
-  } catch(e) {}
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const colRef = collection(db, "competitions");
 
-function setStatus(msg) {
-  document.getElementById('sync-status').textContent = msg;
-}
+  let competitions = [];
+  let editingId = null;
 
-function getDays(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr); d.setHours(0,0,0,0);
-  const n = new Date(); n.setHours(0,0,0,0);
-  return Math.round((d - n) / 86400000);
-}
-
-function getStatus(days) {
-  if (days === null) return { label: '—', cls: 'badge-upcoming' };
-  if (days < 0) return { label: 'Completed', cls: 'badge-done' };
-  if (days <= 14) return { label: days + 'd left', cls: 'badge-soon' };
-  return { label: days + ' days', cls: 'badge-upcoming' };
-}
-
-function getColor(subject) {
-  const s = (subject || '').toLowerCase();
-  if (s.includes('math')) return '#378ADD';
-  if (s.includes('english')) return '#1D9E75';
-  if (s.includes('science')) return '#EF9F27';
-  return '#7F77DD';
-}
-
-function render() {
-  const contests = load();
-  const list = document.getElementById('contests-list');
-  const empty = document.getElementById('empty-state');
-
-  empty.style.display = contests.length ? 'none' : 'block';
-
-  list.innerHTML = contests.map(c => {
-    const days = getDays(c.date);
-    const st = getStatus(days);
-    const pct = days !== null ? Math.max(0, Math.min(100, Math.round(100 - (days / 180 * 100)))) : 0;
-    const color = getColor(c.subject);
-    const dateStr = c.date ? new Date(c.date).toLocaleDateString('en-SG', { day:'numeric', month:'short', year:'numeric' }) : '—';
-    return `<div class="card">
-      <div class="card-top">
-        <div class="card-name">${c.name}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span class="badge ${st.cls}">${st.label}</span>
-          <button class="btn-del" onclick="deleteContest(${c.id})">✕</button>
-        </div>
-      </div>
-      <div class="meta">
-        <div class="meta-item">Date: <span>${dateStr}</span></div>
-        <div class="meta-item">Price: <span>${c.price} SGD</span></div>
-        ${c.subject ? `<div class="meta-item">Subject: <span>${c.subject}</span></div>` : ''}
-        ${c.venue ? `<div class="meta-item">Venue: <span>${c.venue}</span></div>` : ''}
-      </div>
-      <div class="bar"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-      <textarea rows="2" placeholder="Notes (prep tips, reminders...)" onchange="updateNotes(${c.id}, this.value)">${c.notes || ''}</textarea>
-      <div class="saved-msg" id="saved-${c.id}">✓ Saved</div>
-    </div>`;
-  }).join('');
-
-  const total = contests.reduce((s, c) => s + (Number(c.price) || 0), 0);
-  document.getElementById('total-count').textContent = contests.length;
-  document.getElementById('total-cost').textContent = total;
-  const upcoming = contests.filter(c => getDays(c.date) !== null && getDays(c.date) >= 0).sort((a,b) => getDays(a.date) - getDays(b.date));
-  document.getElementById('days-next').textContent = upcoming.length ? getDays(upcoming[0].date) : '—';
-  setStatus('Up to date');
-}
-
-function toggleForm() {
-  const f = document.getElementById('add-form');
-  f.style.display = f.style.display === 'none' ? 'block' : 'none';
-}
-
-function addContest() {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) { alert('Please enter a competition name.'); return; }
-  const contests = load();
-  contests.push({
-    id: Date.now(),
-    name,
-    date: document.getElementById('f-date').value,
-    price: Number(document.getElementById('f-price').value) || 0,
-    subject: document.getElementById('f-subject').value.trim(),
-    venue: document.getElementById('f-venue').value.trim(),
-    notes: '',
+  // Real-time listener
+  onSnapshot(colRef, (snapshot) => {
+    competitions = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort by start date ascending (upcoming first)
+    competitions.sort((a, b) => {
+      const da = a.startDate || a.date || '';
+      const db2 = b.startDate || b.date || '';
+      return da.localeCompare(db2);
+    });
+    render();
   });
-  ['f-name','f-date','f-price','f-subject','f-venue'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('add-form').style.display = 'none';
-  save(contests); render();
-}
 
-function deleteContest(id) {
-  if (!confirm('Remove this competition?')) return;
-  const contests = load().filter(c => c.id !== id);
-  save(contests); render();
-}
+  function getDaysUntil(dateStr) {
+    if (!dateStr) return null;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const d = new Date(dateStr); d.setHours(0,0,0,0);
+    return Math.round((d - today) / 86400000);
+  }
 
-function updateNotes(id, val) {
-  const contests = load();
-  const c = contests.find(x => x.id === id);
-  if (c) { c.notes = val; save(contests); }
-  const el = document.getElementById('saved-' + id);
-  if (el) { el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2000); }
-}
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
 
-render();
+  function getStatus(startDate, endDate) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const start = new Date(startDate); start.setHours(0,0,0,0);
+    const end = endDate ? new Date(endDate) : start; end.setHours(0,0,0,0);
+    if (today < start) return 'upcoming';
+    if (today > end) return 'past';
+    return 'today';
+  }
+
+  function render() {
+    const list = document.getElementById('competitions-list');
+    const total = competitions.length;
+    const upcoming = competitions.filter(c => getStatus(c.startDate || c.date, c.endDate) !== 'past').length;
+
+    // Days to next
+    const nextComp = competitions.find(c => getStatus(c.startDate || c.date, c.endDate) === 'upcoming');
+    const daysNext = nextComp ? getDaysUntil(nextComp.startDate || nextComp.date) : null;
+
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-upcoming').textContent = upcoming;
+    document.getElementById('stat-next').textContent = daysNext !== null ? daysNext : '—';
+
+    if (total === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="emoji">🏊</div><p>No competitions yet.<br>Add the first one below!</p></div>`;
+      return;
+    }
+
+    list.innerHTML = competitions.map(c => {
+      const startDate = c.startDate || c.date || '';
+      const endDate = c.endDate || '';
+      const status = getStatus(startDate, endDate);
+      const days = getDaysUntil(startDate);
+      const isEditing = editingId === c.id;
+
+      let countdownText = '';
+      let countdownClass = '';
+      if (status === 'upcoming') {
+        countdownText = days === 0 ? 'Starts today!' : `${days} day${days !== 1 ? 's' : ''} to go`;
+        countdownClass = '';
+      } else if (status === 'today') {
+        countdownText = '🟢 Happening now!';
+        countdownClass = 'today';
+      } else {
+        countdownText = 'Completed';
+        countdownClass = 'past';
+      }
+
+      // Progress bar: days passed / total days from now-90days to event
+      let progress = 100;
+      if (status === 'upcoming' && days !== null) {
+        progress = Math.max(0, Math.min(100, 100 - (days / 180) * 100));
+      }
+
+      const badgeClass = status === 'upcoming' ? 'badge-upcoming' : status === 'today' ? 'badge-today' : 'badge-past';
+      const badgeText = status === 'upcoming' ? 'Upcoming' : status === 'today' ? 'Now' : 'Past';
+
+      const dateRange = endDate && endDate !== startDate
+        ? `${formatDate(startDate)} → ${formatDate(endDate)}`
+        : formatDate(startDate);
+
+      const notesHtml = isEditing
+        ? `<textarea class="notes-input" id="notes-edit-${c.id}" placeholder="Add notes...">${c.notes || ''}</textarea>`
+        : `<div class="notes-text ${!c.notes ? 'notes-empty' : ''}">${c.notes || 'No notes yet — tap Edit to add'}</div>`;
+
+      return `
+        <div class="comp-card ${status}">
+          <div class="comp-header">
+            <div class="comp-name">${c.name}</div>
+            <span class="comp-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          ${c.location ? `<div class="comp-date"><span class="comp-date-icon">📍</span>${c.location}</div>` : ''}
+          <div class="comp-date"><span class="comp-date-icon">📅</span>${dateRange}</div>
+          <div class="comp-countdown ${countdownClass}">${countdownText}</div>
+          <div class="progress-wrap"><div class="progress-bar" style="width:${progress}%"></div></div>
+          <div class="comp-notes">
+            <div class="notes-label">📝 Notes</div>
+            ${notesHtml}
+          </div>
+          <div class="comp-actions">
+            ${isEditing
+              ? `<button class="btn-small btn-save" onclick="saveNotes('${c.id}')">Save</button>
+                 <button class="btn-small btn-edit" onclick="cancelEdit()">Cancel</button>`
+              : `<button class="btn-small btn-edit" onclick="startEdit('${c.id}')">Edit Notes</button>`
+            }
+            <button class="btn-small btn-delete" onclick="deleteComp('${c.id}')">Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  window.addCompetition = async function() {
+    const name = document.getElementById('input-name').value.trim();
+    const location = document.getElementById('input-location').value.trim();
+    const startDate = document.getElementById('input-start').value;
+    const endDate = document.getElementById('input-end').value;
+    const notes = document.getElementById('input-notes').value.trim();
+
+    if (!name || !startDate) { showToast('⚠️ Please enter a name and start date'); return; }
+
+    await addDoc(colRef, { name, location, startDate, endDate, notes, createdAt: Date.now() });
+
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-location').value = '';
+    document.getElementById('input-start').value = '';
+    document.getElementById('input-end').value = '';
+    document.getElementById('input-notes').value = '';
+    showToast('✅ Competition added!');
+  };
+
+  window.startEdit = function(id) {
+    editingId = id;
+    render();
+    setTimeout(() => document.getElementById(`notes-edit-${id}`)?.focus(), 50);
+  };
+
+  window.cancelEdit = function() {
+    editingId = null;
+    render();
+  };
+
+  window.saveNotes = async function(id) {
+    const notes = document.getElementById(`notes-edit-${id}`)?.value || '';
+    await updateDoc(doc(db, 'competitions', id), { notes });
+    editingId = null;
+    showToast('✅ Notes saved!');
+  };
+
+  window.deleteComp = async function(id) {
+    if (!confirm('Delete this competition?')) return;
+    await deleteDoc(doc(db, 'competitions', id));
+    showToast('🗑️ Deleted');
+  };
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
 </script>
 </body>
 </html>
